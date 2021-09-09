@@ -1,47 +1,47 @@
-import React, {Component} from 'react';
+import React, {useState, useEffect} from 'react';
 import CardList from "../components/CardList";
 import SearchBox from "../components/SearchBox";
 import './App.css';
 import Scroll from "../components/Scroll";
 
-class App extends Component {
-    constructor() {
-        super()
-        this.state = {
-            robots : [],
-            searchField: ''
-        }
-    }
+function App() {
+    
+    // Hook into the App State
+    const [searchField, setSearchField] = useState('');
+    const [robots, setRobots] = useState([]);
+    const [count, setCount] = useState(0);
 
-    componentDidMount() {
-        fetch('https://jsonplaceholder.typicode.com/users')
+    // Empty Array at the end means that run UseEffect only once
+    // Equivalent to componentDidMount
+    useEffect(()=> {
+            fetch('https://jsonplaceholder.typicode.com/users')
             .then(response => {
                return response.json();
             }).then(users => {
-            this.setState({robots : users})
+                setRobots(users)
         });
+        console.log(count);
+    },[count]); // means run this effect only when count changes
+
+    const filteredRobots = robots.filter(robot => {
+        return robot.name.toLowerCase().includes(searchField.toLowerCase());
+    })
+
+    const onSearchChange = (event) => {
+        setSearchField(event.target.value);
     }
 
-    onSearchChange = (event) => {
-        this.setState({searchField: event.target.value});
-    }
-
-    render()
-    {
-        const filteredRobots = this.state.robots.filter(robots => {
-            return robots.name.toLowerCase().includes(this.state.searchField.toLowerCase());
-        })
-
-        return (
-            <div className='tc'>
-                <h1 className='f1'>Robo Friends</h1>
-                <SearchBox searchChange={this.onSearchChange}/>
-                <Scroll>
-                    <CardList robots={filteredRobots}/>
-                </Scroll>
-            </div>
-        );
-    }
+    return (
+        
+        <div className='tc'>
+            <h1 className='f1'>Robo Friends</h1>
+            <button onClick={() => setCount(count + 1)}>Click Me</button>
+            <SearchBox searchChange={onSearchChange}/>
+            <Scroll>
+                <CardList robots={filteredRobots}/>
+            </Scroll>
+        </div>
+    );
 
 }
 
